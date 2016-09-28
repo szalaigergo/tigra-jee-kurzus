@@ -16,6 +16,9 @@
  */
 package hu.tigra.jee.controller;
 
+import hu.tigra.jee.model.Member;
+import hu.tigra.jee.service.MemberRegistration;
+
 import javax.annotation.PostConstruct;
 import javax.enterprise.inject.Model;
 import javax.enterprise.inject.Produces;
@@ -23,9 +26,6 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
-
-import hu.tigra.jee.model.Member;
-import hu.tigra.jee.service.MemberRegistration;
 
 // The @Model stereotype is a convenience mechanism to make this a request-scoped bean that has an
 // EL name

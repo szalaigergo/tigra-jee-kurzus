@@ -1,6 +1,6 @@
 package hu.tigra.jee.data;
 
-import hu.tigra.jee.model.Member;
+import hu.tigra.jee.model.Allocation;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
@@ -13,21 +13,21 @@ import javax.persistence.PersistenceContext;
 /**
  * Az Owner select-hez (dropdown-hoz)
  */
-@Named("memberConverterBean")
-@FacesConverter(value = "memberConverter")
-public class MemberConverter implements Converter {
+@Named("allocationConverterBean")
+@FacesConverter(value = "allocationConverter")
+public class AllocationConverter implements Converter {
 
     @PersistenceContext
     private EntityManager entityManager;
 
     @Override
     public Object getAsObject(FacesContext ctx, UIComponent component, String value) {
-        // entityManager == null mert a MemberConverter-be nem sikerült beinjektáltatni
+        // entityManager == null mert a AllocationConverter-be nem sikerült beinjektáltatni
         // semmilyen EntityManager-t. evaluateExpressionGet() hatására az újonnan
-        // keletkező MemberConverter-be viszont ki lesz töltve.
+        // keletkező AllocationConverter-be viszont ki lesz töltve.
         EntityManager em = FacesContext.getCurrentInstance().getApplication().
-                evaluateExpressionGet(ctx, "#{memberConverterBean}", MemberConverter.class).entityManager;
-        return em.find(Member.class, Long.valueOf(value));
+                evaluateExpressionGet(ctx, "#{allocationConverterBean}", AllocationConverter.class).entityManager;
+        return em.find(Allocation.class, Long.valueOf(value));
     }
 
     @Override

@@ -27,11 +27,12 @@ import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
+
 @SuppressWarnings("serial")
 @Entity
 @XmlRootElement
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = "email"))
-public class Member extends EqualsById implements Serializable {
+public class Allocation extends EqualsById implements Serializable {
 
     @Id
     @GeneratedValue

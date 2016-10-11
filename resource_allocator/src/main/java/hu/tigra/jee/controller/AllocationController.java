@@ -16,8 +16,8 @@
  */
 package hu.tigra.jee.controller;
 
-import hu.tigra.jee.model.Member;
-import hu.tigra.jee.service.MemberRegistration;
+import hu.tigra.jee.model.Allocation;
+import hu.tigra.jee.service.AllocationRegistration;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.inject.Model;
@@ -32,29 +32,29 @@ import javax.inject.Named;
 // Read more about the @Model stereotype in this FAQ:
 // http://www.cdi-spec.org/faq/#accordion6
 @Model
-public class MemberController {
+public class AllocationController {
 
     @Inject
     private FacesContext facesContext;
 
     @Inject
-    private MemberRegistration memberRegistration;
+    private AllocationRegistration allocationRegistration;
 
     @Produces
     @Named
-    private Member newMember;
+    private Allocation newAllocation;
 
     @PostConstruct
-    public void initNewMember() {
-        newMember = new Member();
+    public void initNewAllocation() {
+        newAllocation = new Allocation();
     }
 
     public void register() throws Exception {
         try {
-            memberRegistration.register(newMember);
+            allocationRegistration.register(newAllocation);
             FacesMessage m = new FacesMessage(FacesMessage.SEVERITY_INFO, "Registered!", "Registration successful");
             facesContext.addMessage(null, m);
-            initNewMember();
+            initNewAllocation();
         } catch (Exception e) {
             String errorMessage = getRootErrorMessage(e);
             FacesMessage m = new FacesMessage(FacesMessage.SEVERITY_ERROR, errorMessage, "Registration unsuccessful");

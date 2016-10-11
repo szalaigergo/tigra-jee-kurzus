@@ -16,7 +16,7 @@
  */
 package hu.tigra.jee.service;
 
-import hu.tigra.jee.model.Member;
+import hu.tigra.jee.model.Allocation;
 
 import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 
 // The @Stateless annotation eliminates the need for manual transaction demarcation
 @Stateless
-public class MemberRegistration {
+public class AllocationRegistration {
 
     @Inject
     private Logger log;
@@ -35,11 +35,11 @@ public class MemberRegistration {
     private EntityManager em;
 
     @Inject
-    private Event<Member> memberEventSrc;
+    private Event<Allocation> allocationEventSrc;
 
-    public void register(Member member) throws Exception {
-        log.info("Registering " + member.getName());
-        em.persist(member);
-        memberEventSrc.fire(member);
+    public void register(Allocation allocation) throws Exception {
+        log.info("Registering " + allocation.getName());
+        em.persist(allocation);
+        allocationEventSrc.fire(allocation);
     }
 }

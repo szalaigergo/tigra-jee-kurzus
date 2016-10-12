@@ -44,11 +44,11 @@ public class AllocationListProducer {
     }
 
     public void onAllocationListChanged(@Observes(notifyObserver = Reception.IF_EXISTS) final Allocation allocation) {
-        retrieveAllAllocationsOrderedByName();
+        retrieveAllAllocationsOrderedByStart();
     }
 
     @PostConstruct
-    public void retrieveAllAllocationsOrderedByName() {
-        allocations = allocationRepository.findAllOrderedByName();
+    public void retrieveAllAllocationsOrderedByStart() {
+        allocations = allocationRepository.findAllOrderedByStart();
     }
 }

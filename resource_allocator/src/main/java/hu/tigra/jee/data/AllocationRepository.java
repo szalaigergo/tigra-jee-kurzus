@@ -47,14 +47,14 @@ public class AllocationRepository {
         return em.createQuery(criteria).getSingleResult();
     }
 
-    public List<Allocation> findAllOrderedByName() {
+    public List<Allocation> findAllOrderedByStart() {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Allocation> criteria = cb.createQuery(Allocation.class);
         Root<Allocation> allocation = criteria.from(Allocation.class);
         // Swap criteria statements if you would like to try out type-safe criteria queries, a new
         // feature in JPA 2.0
         // criteria.select(allocation).orderBy(cb.asc(allocation.get(Allocation_.name)));
-        criteria.select(allocation).orderBy(cb.asc(allocation.get("name")));
+        criteria.select(allocation).orderBy(cb.asc(allocation.get("start")));
         return em.createQuery(criteria).getResultList();
     }
 }

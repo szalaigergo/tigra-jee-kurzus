@@ -6,69 +6,78 @@
     xmlns:h="http://java.sun.com/jsf/html"
     template="/WEB-INF/templates/default.xhtml">
     <ui:define name="content">
-        <h1>Member list</h1>
+        <h1>Allocation list</h1>
 
         <h:form id="reg">
-            <h2>Member Registration</h2>
+            <h2>Allocation Registration</h2>
             <p>Enforces annotation-based constraints defined on the
                 model class.</p>
             <h:panelGrid columns="3" columnClasses="titleCell">
-                <h:outputLabel for="name" value="Name:" />
-                <h:inputText id="name" value="#{newMember.name}" />
-                <h:message for="name" errorClass="invalid" />
+                <h:outputLabel for="subject" value="Name:"/>
+                <h:inputText id="subject" value="#{newAllocation.subject}"/>
+                <h:message for="subject" errorClass="invalid"/>
 
                 <h:outputLabel for="email" value="Email:" />
-                <h:inputText id="email" value="#{newMember.email}" />
+                <h:inputText id="email" value="#{newAllocation.email}"/>
                 <h:message for="email" errorClass="invalid" />
 
-                <h:outputLabel for="phoneNumber" value="Phone #:" />
-                <h:inputText id="phoneNumber"
-                    value="#{newMember.phoneNumber}" />
-                <h:message for="phoneNumber" errorClass="invalid" />
+                <h:outputLabel for="start" value="Start:"/>
+                <h:inputText id="start" value="#{newAllocation.start}" label="Date">
+                    <f:convertDateTime pattern="yyyy-mm-dd"/> </h:inputText>
+                <h:message for="start" errorClass="invalid"/>
+
+                <h:outputLabel for="end" value="End:"/>
+                <h:inputText id="end" value="#{newAllocation.end}" label="Date">
+                    <f:convertDateTime pattern="yyyy-mm-dd"/> </h:inputText>
+                <h:message for="end" errorClass="invalid"/>
             </h:panelGrid>
 
             <p>
                 <h:panelGrid columns="2">
                     <h:commandButton id="register"
-                        action="#{memberController.register}"
-                        value="Register" styleClass="register" />
+                                     action="#{allocationController.register}"
+                                     value="Register" styleClass="register" />
                     <h:messages styleClass="messages"
                         errorClass="invalid" infoClass="valid"
                         warnClass="warning" globalOnly="true" />
                 </h:panelGrid>
             </p>
         </h:form>
-        <h2>Members</h2>
-        <h:panelGroup rendered="#{empty members}">
-            <em>No registered members.</em>
+        <h2>Allocations</h2>
+        <h:panelGroup rendered="#{empty allocations}">
+            <em>No registered allocations.</em>
         </h:panelGroup>
-        <h:dataTable var="_member" value="#{members}"
-            rendered="#{not empty members}"
-            styleClass="simpletablestyle">
+        <h:dataTable var="_allocation" value="#{allocations}"
+                     rendered="#{not empty allocations}"
+                     styleClass="simpletablestyle">
             <h:column>
                 <f:facet name="header">Id</f:facet>
-                #{_member.id}
+                #{_allocation.id}
             </h:column>
             <h:column>
                 <f:facet name="header">Name</f:facet>
-                #{_member.name}
+                #{_allocation.subject}
             </h:column>
             <h:column>
                 <f:facet name="header">Email</f:facet>
-                #{_member.email}
+                #{_allocation.email}
             </h:column>
             <h:column>
-                <f:facet name="header">Phone #</f:facet>
-                #{_member.phoneNumber}
+                <f:facet name="header">Start</f:facet>
+                #{_allocation.start}
+            </h:column>
+            <h:column>
+                <f:facet name="header">End</f:facet>
+                #{_allocation.end}
             </h:column>
             <h:column>
                 <f:facet name="header">REST URL</f:facet>
                 <a
-                    href="#{request.contextPath}/rest/members/#{_member.id}">/rest/members/#{_member.id}</a>
+                        href="#{request.contextPath}/rest/allocations/#{_allocation.id}">/rest/allocations/#{_allocation.id}</a>
             </h:column>
             <f:facet name="footer">
-            REST URL for all members: <a
-                    href="#{request.contextPath}/rest/members">/rest/members</a>
+                REST URL for all allocations: <a
+                    href="#{request.contextPath}/rest/allocations">/rest/allocations</a>
             </f:facet>
         </h:dataTable>
     </ui:define>

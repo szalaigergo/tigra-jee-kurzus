@@ -16,9 +16,9 @@
  */
 package hu.tigra.jee.rest;
 
-import hu.tigra.jee.data.MemberRepository;
-import hu.tigra.jee.model.Member;
-import hu.tigra.jee.service.MemberRegistration;
+import hu.tigra.jee.data.AllocationRepository;
+import hu.tigra.jee.model.Allocation;
+import hu.tigra.jee.service.AllocationRegistration;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -36,11 +36,11 @@ import java.util.logging.Logger;
 /**
  * JAX-RS Example
  * <p/>
- * This class produces a RESTful service to read/write the contents of the members table.
+ * This class produces a RESTful service to read/write the contents of the allocations table.
  */
-@Path("/members")
+@Path("/allocations")
 @RequestScoped
-public class MemberResourceRESTService {
+public class AllocationResourceRESTService {
 
     @Inject
     private Logger log;
@@ -49,44 +49,44 @@ public class MemberResourceRESTService {
     private Validator validator;
 
     @Inject
-    private MemberRepository repository;
+    private AllocationRepository repository;
 
     @Inject
-    MemberRegistration registration;
+    AllocationRegistration registration;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Member> listAllMembers() {
-        return repository.findAllOrderedByName();
+    public List<Allocation> listAllAllocations() {
+        return repository.findAllOrderedByStart();
     }
 
     @GET
     @Path("/{id:[0-9][0-9]*}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Member lookupMemberById(@PathParam("id") long id) {
-        Member member = repository.findById(id);
-        if (member == null) {
+    public Allocation lookupAllocationById(@PathParam("id") long id) {
+        Allocation allocation = repository.findById(id);
+        if (allocation == null) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
-        return member;
+        return allocation;
     }
 
     /**
-     * Creates a new member from the values provided. Performs validation, and will return a JAX-RS response with either 200 ok,
+     * Creates a new allocation from the values provided. Performs validation, and will return a JAX-RS response with either 200 ok,
      * or with a map of fields, and related errors.
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createMember(Member member) {
+    public Response createAllocation(Allocation allocation) {
 
         Response.ResponseBuilder builder = null;
 
         try {
-            // Validates member using bean validation
-            validateMember(member);
+            // Validates allocation using bean validation
+            validateAllocation(allocation);
 
-            registration.register(member);
+            registration.register(allocation);
 
             // Create an "ok" response
             builder = Response.ok();
@@ -110,28 +110,28 @@ public class MemberResourceRESTService {
 
     /**
      * <p>
-     * Validates the given Member variable and throws validation exceptions based on the type of error. If the error is standard
+     * Validates the given Allocation variable and throws validation exceptions based on the type of error. If the error is standard
      * bean validation errors then it will throw a ConstraintValidationException with the set of the constraints violated.
      * </p>
      * <p>
-     * If the error is caused because an existing member with the same email is registered it throws a regular validation
+     * If the error is caused because an existing allocation with the same email is registered it throws a regular validation
      * exception so that it can be interpreted separately.
      * </p>
-     * 
-     * @param member Member to be validated
+     *
+     * @param allocation Allocation to be validated
      * @throws ConstraintViolationException If Bean Validation errors exist
-     * @throws ValidationException If member with the same email already exists
+     * @throws ValidationException If allocation with the same email already exists
      */
-    private void validateMember(Member member) throws ConstraintViolationException, ValidationException {
+    private void validateAllocation(Allocation allocation) throws ConstraintViolationException, ValidationException {
         // Create a bean validator and check for issues.
-        Set<ConstraintViolation<Member>> violations = validator.validate(member);
+        Set<ConstraintViolation<Allocation>> violations = validator.validate(allocation);
 
         if (!violations.isEmpty()) {
             throw new ConstraintViolationException(new HashSet<ConstraintViolation<?>>(violations));
         }
 
         // Check the uniqueness of the email address
-        if (emailAlreadyExists(member.getEmail())) {
+        if (emailAlreadyExists(allocation.getEmail())) {
             throw new ValidationException("Unique Email Violation");
         }
     }
@@ -156,19 +156,19 @@ public class MemberResourceRESTService {
     }
 
     /**
-     * Checks if a member with the same email address is already registered. This is the only way to easily capture the
-     * "@UniqueConstraint(columnNames = "email")" constraint from the Member class.
+     * Checks if a allocation with the same email address is already registered. This is the only way to easily capture the
+     * "@UniqueConstraint(columnNames = "email")" constraint from the Allocation class.
      * 
      * @param email The email to check
      * @return True if the email already exists, and false otherwise
      */
     public boolean emailAlreadyExists(String email) {
-        Member member = null;
+        Allocation allocation = null;
         try {
-            member = repository.findByEmail(email);
+            allocation = repository.findByEmail(email);
         } catch (NoResultException e) {
             // ignore
         }
-        return member != null;
+        return allocation != null;
     }
 }

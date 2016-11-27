@@ -39,6 +39,7 @@ public class AllocationRegistration {
 
     public void register(Allocation allocation) throws Exception {
         log.info("Registering " + allocation.getSubject());
+        log.info("" + allocation.getStart());
         em.persist(allocation);
         allocationEventSrc.fire(allocation);
     }

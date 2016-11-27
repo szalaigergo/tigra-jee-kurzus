@@ -16,6 +16,7 @@
  */
 package hu.tigra.jee.rest;
 
+import hu.tigra.jee.controller.AllocationController;
 import hu.tigra.jee.data.AllocationRepository;
 import hu.tigra.jee.model.Allocation;
 import hu.tigra.jee.service.AllocationRegistration;
@@ -30,6 +31,8 @@ import javax.validation.Validator;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -43,16 +46,13 @@ import java.util.logging.Logger;
 public class AllocationResourceRESTService {
 
     @Inject
+    AllocationRegistration registration;
+    @Inject
     private Logger log;
-
     @Inject
     private Validator validator;
-
     @Inject
     private AllocationRepository repository;
-
-    @Inject
-    AllocationRegistration registration;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -93,12 +93,12 @@ public class AllocationResourceRESTService {
         } catch (ConstraintViolationException ce) {
             // Handle bean validation issues
             builder = createViolationResponse(ce.getConstraintViolations());
-        } catch (ValidationException e) {
+        } /*catch (ValidationException e) {
             // Handle the unique constrain violation
             Map<String, String> responseObj = new HashMap<>();
             responseObj.put("email", "Email taken");
             builder = Response.status(Response.Status.CONFLICT).entity(responseObj);
-        } catch (Exception e) {
+        }*/ catch (Exception e) {
             // Handle generic exceptions
             Map<String, String> responseObj = new HashMap<>();
             responseObj.put("error", e.getMessage());
@@ -122,18 +122,27 @@ public class AllocationResourceRESTService {
      * @throws ConstraintViolationException If Bean Validation errors exist
      * @throws ValidationException If allocation with the same email already exists
      */
-    private void validateAllocation(Allocation allocation) throws ConstraintViolationException, ValidationException {
+    private void validateAllocation(Allocation allocation) throws Exception {
         // Create a bean validator and check for issues.
         Set<ConstraintViolation<Allocation>> violations = validator.validate(allocation);
 
         if (!violations.isEmpty()) {
             throw new ConstraintViolationException(new HashSet<ConstraintViolation<?>>(violations));
         }
-
-        // Check the uniqueness of the email address
-        if (emailAlreadyExists(allocation.getEmail())) {
-            throw new ValidationException("Unique Email Violation");
+        //ez nem működik
+        if (timeDiff(allocation.getStart(), allocation.getEnd())) {
+            throw new ValidationException("RESTMin. 15 perc foglalas!");
         }
+
+        //ez nem működik
+        if (isCollision(allocation.getStart(), allocation.getEnd())) {
+            throw new ValidationException("Utkozes!");
+        }
+        //nem működik
+        if (isCollisionMadeInKokany(allocation)) {
+            throw new ValidationException("Időpont ütközés");
+        }
+
     }
 
     /**
@@ -155,20 +164,45 @@ public class AllocationResourceRESTService {
         return Response.status(Response.Status.BAD_REQUEST).entity(responseObj);
     }
 
-    /**
-     * Checks if a allocation with the same email address is already registered. This is the only way to easily capture the
-     * "@UniqueConstraint(columnNames = "email")" constraint from the Allocation class.
-     * 
-     * @param email The email to check
-     * @return True if the email already exists, and false otherwise
-     */
-    public boolean emailAlreadyExists(String email) {
+
+    public boolean timeDiff(Date dateStart, Date dateStop) {
+
+        boolean igaz = false;
+
+        long diff = dateStop.getTime() - dateStart.getTime();
+        log.info("" + diff);
+        long diffMinutes = diff / (60 * 1000) % 60;
+
+        if (diffMinutes < 15) {
+            igaz = true;
+        }
+        return igaz;
+    }
+
+    public boolean isCollision(Date start, Date end) {
         Allocation allocation = null;
         try {
-            allocation = repository.findByEmail(email);
+            allocation = repository.findCollision(start, end);
         } catch (NoResultException e) {
             // ignore
         }
         return allocation != null;
+    }
+
+    public boolean isCollisionMadeInKokany(Allocation newA) {
+        boolean result = false;
+        List<Allocation> allocations = repository.findAllOrderedByStart();
+        long newAllStart = newA.getStart().getTime();
+        long newAllEnd = newA.getEnd().getTime();
+        long listAllStart, listAllEnd;
+
+        for (int i = 0; i <= allocations.size(); i++) {
+            listAllStart = allocations.get(i).getStart().getTime();
+            listAllEnd = allocations.get(i).getEnd().getTime();
+            if ((newAllStart >= listAllStart && newAllStart <= listAllEnd) || (newAllEnd >= listAllStart && newAllEnd <= listAllEnd)) {
+                result = true;
+            }
+        }
+        return result;
     }
 }

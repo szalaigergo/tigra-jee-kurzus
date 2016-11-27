@@ -24,8 +24,12 @@ import javax.enterprise.inject.Model;
 import javax.enterprise.inject.Produces;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.faces.validator.ValidatorException;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.validation.ValidationException;
+import java.util.Date;
+import java.util.logging.Logger;
 
 // The @Model stereotype is a convenience mechanism to make this a request-scoped bean that has an
 // EL name
@@ -33,6 +37,8 @@ import javax.inject.Named;
 // http://www.cdi-spec.org/faq/#accordion6
 @Model
 public class AllocationController {
+    @Inject
+    private Logger log;
 
     @Inject
     private FacesContext facesContext;
@@ -51,6 +57,9 @@ public class AllocationController {
 
     public void register() throws Exception {
         try {
+            if (timeDiff(newAllocation.getStart(), newAllocation.getEnd())) {
+                throw new ValidationException("Min. 15 perc foglalás!");
+            }
             allocationRegistration.register(newAllocation);
             FacesMessage m = new FacesMessage(FacesMessage.SEVERITY_INFO, "Registered!", "Registration successful");
             facesContext.addMessage(null, m);
@@ -80,5 +89,20 @@ public class AllocationController {
         // This is the root cause message
         return errorMessage;
     }
+
+    public boolean timeDiff(Date dateStart, Date dateStop) {
+
+        boolean hiba = false;
+
+        long diff = dateStop.getTime() - dateStart.getTime();
+        long diffMinutes = diff / (60 * 1000) % 60;
+        log.info("" + diffMinutes);
+        if (diffMinutes < 15) {
+            hiba = true;
+        }
+        return hiba;
+    }
+
+    //public boolean dateCollision()
 
 }

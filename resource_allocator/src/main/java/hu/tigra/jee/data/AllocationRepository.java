@@ -21,13 +21,13 @@ import hu.tigra.jee.model.Allocation;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
+import java.util.Date;
 import java.util.List;
 
 @ApplicationScoped
 public class AllocationRepository {
+
 
     @Inject
     private EntityManager em;
@@ -56,5 +56,15 @@ public class AllocationRepository {
         // criteria.select(allocation).orderBy(cb.asc(allocation.get(Allocation_.name)));
         criteria.select(allocation).orderBy(cb.asc(allocation.get("start")));
         return em.createQuery(criteria).getResultList();
+    }
+
+    //ez nem működik
+    public Allocation findCollision(Date start, Date end) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Allocation> criteria = cb.createQuery(Allocation.class);
+        Root<Allocation> allocation = criteria.from(Allocation.class);
+        Path<Date> path = allocation.get("start");
+        criteria.select(allocation).where(cb.between(path, start, end));
+        return em.createQuery(criteria).getSingleResult();
     }
 }

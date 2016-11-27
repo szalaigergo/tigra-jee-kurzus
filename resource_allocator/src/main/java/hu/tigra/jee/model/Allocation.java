@@ -20,9 +20,7 @@ import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.Date;
@@ -31,7 +29,7 @@ import java.util.Date;
 @SuppressWarnings("serial")
 @Entity
 @XmlRootElement
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = "email"))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = "id"))
 public class Allocation extends EqualsById implements Serializable {
 
     @Id
@@ -48,6 +46,9 @@ public class Allocation extends EqualsById implements Serializable {
     @Email
     private String email;
 
+    @Min(1)
+    @Max(3)
+    private int room;
 
     private Date start;
 
@@ -93,5 +94,12 @@ public class Allocation extends EqualsById implements Serializable {
         this.email = email;
     }
 
+    public int getRoom() {
+        return room;
+    }
+
+    public void setRoom(int room) {
+        this.room = room;
+    }
 
 }
